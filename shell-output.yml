@@ -1,0 +1,9 @@
+---
+- hosts: malawitest
+  gather_facts: no
+  
+  tasks:
+    - shell: ls -lah
+      register: ps
+
+    - debug: var=ps.stdout_lines

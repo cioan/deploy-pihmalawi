@@ -1,0 +1,57 @@
+---
+- hosts: malawitest
+  gather_facts: yes
+  sudo: yes
+  vars_files:
+    - ./group_vars/site.yml
+  
+  roles:
+    - williamyeh.oracle-java
+
+  vars:
+    - java_version: 7
+    - java_subversion: 80
+    - java_download_path: /tmp
+    - java_download_from_oracle: true
+    - java_remove_download: false
+
+  tasks:
+  - name: install required packages
+    apt: name={{ item }} state=present install_recommends=yes force=yes
+    with_items:
+        - unzip
+        - tar
+        - wget
+        - maven
+        - git     
+    ignore_errors: yes
+    register: apt_output
+
+  - name: apt install results
+    debug: var=apt_output.stdout
+
+  - name: get the latest code from github
+    git: repo="{{ git_repo_url }}" dest="/tmp/{{ git_repo_name }}" update=yes force=yes
+
+  - name: build the distro
+    shell: mvn clean install -DskipTests -Pdistribution    
+    args: 
+      chdir: /tmp/{{ git_repo_name }}
+    register: build_output  
+
+  - name: build results
+    debug: msg="{{ build_output }}"
+
+  - name: Find the distro zip file    
+    find: 
+      paths: "{{ git_repo_name }}/distro/target"
+      patterns: "{{ git_repo_name }}*distro.zip"
+    register: distro_file  
+
+  - name: print info about the distro file
+    shell: echo "found {{ item }}.path"
+    with_items: "{{ distro_file.files }}"    
+
+  - name: Unzip the distro fie    
+    unarchive: src="{{ item }}.path" dest=/tmp/ copy=no list_files=yes    
+    with_items: "{{ distro_file.files }}"

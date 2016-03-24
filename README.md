@@ -2,7 +2,7 @@
 Ansible script for deploying pihmalawi
 
 * Run the playbook on the Vagrant box:
-ansible-playbook -c paramiko -i hosts deploy.yml -u emradmin --sudo
+ansible-playbook -vvv -c paramiko -i hosts deploy.yml -u emradmin --sudo
 
 * Check playbook syntax
 ansible-playbook -c paramiko -i hosts deploy.yml --syntax-check -u emradmin --sudo

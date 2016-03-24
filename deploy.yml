@@ -49,8 +49,9 @@
     register: distro_file  
 
   - name: print info about the distro file
-    debug: msg=distro_file
+    debug: msg="{{ distro_file.files }}"
 
-  - name: Unzip the distro fie    
-    unarchive: src="{{ item }}.path" dest=/tmp/ copy=no list_files=yes    
+  - name: Unzip the distro file
+    unarchive: src="{{ item.path }}" dest=/tmp/ copy=no list_files=yes
     with_items: "{{ distro_file.files }}"
+    register: unzip_files

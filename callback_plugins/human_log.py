@@ -24,7 +24,7 @@ except ImportError:
     import json
 
 # Fields to reformat output for
-FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout',
+FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'stdout',
           'stderr']
 
 

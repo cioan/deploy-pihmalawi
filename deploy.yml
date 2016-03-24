@@ -24,33 +24,32 @@
         - wget
         - maven
         - git     
-    ignore_errors: yes
-    register: apt_output
+    register: report    
+    ignore_errors: true    
 
   - name: apt install results
-    debug: var=apt_output.stdout
+    debug: msg="{{ item.item }}"
+    with_items: "{{ report.results }}"
+    when: item.changed == true
 
   - name: get the latest code from github
     git: repo="{{ git_repo_url }}" dest="/tmp/{{ git_repo_name }}" update=yes force=yes
 
   - name: build the distro
     shell: mvn clean install -DskipTests -Pdistribution    
+    always_run: true
     args: 
       chdir: /tmp/{{ git_repo_name }}
     register: build_output  
 
-  - name: build results
-    debug: msg="{{ build_output }}"
-
   - name: Find the distro zip file    
     find: 
-      paths: "{{ git_repo_name }}/distro/target"
-      patterns: "{{ git_repo_name }}*distro.zip"
+      paths: /tmp/{{ git_repo_name }}/distro/target
+      patterns: "*distro.zip"
     register: distro_file  
 
   - name: print info about the distro file
-    shell: echo "found {{ item }}.path"
-    with_items: "{{ distro_file.files }}"    
+    debug: msg=distro_file
 
   - name: Unzip the distro fie    
     unarchive: src="{{ item }}.path" dest=/tmp/ copy=no list_files=yes    
